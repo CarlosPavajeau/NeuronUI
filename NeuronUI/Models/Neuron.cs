@@ -36,7 +36,6 @@ namespace NeuronUI.Models
         {
             double output = Output(inputs);
             double error = expectedOutput - output;
-            Errors.Add(Math.Abs(error));
 
             for (int i = 0; i < Weights.Count; i++)
             {

@@ -1,4 +1,9 @@
-﻿using System.Linq;
+﻿using LiveCharts;
+using LiveCharts.Defaults;
+using LiveCharts.Wpf;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -13,11 +18,23 @@ namespace NeuronUI.Models.ViewModels
         private string _maxSteps = string.Empty;
         private string _trainingRate = string.Empty;
 
-        private string _iterationError;
-
         public NeuronViewModel()
         {
-            Inicializate = new AsyncCommand(Init, CanInicializate);
+            SetUpNeuron = new AsyncCommand(Init, CanInicializate);
+            StartTraining = new AsyncCommand(TrainingNeuron);
+
+            ErrorsSeries = new SeriesCollection
+            {
+                new LineSeries
+                {
+                    Title = "Error del patrón",
+                    Values = new ChartValues<ObservableValue>
+                    {
+                        new ObservableValue(1)
+                    },
+                    PointGeometry = DefaultGeometries.Circle,
+                }
+            };
         }
 
         public string Weights
@@ -57,15 +74,6 @@ namespace NeuronUI.Models.ViewModels
             }
         }
 
-        public string IterationErrors
-        {
-            get => _iterationError;
-            set
-            {
-                OnPropertyChanged(ref _iterationError, value);
-            }
-        }
-
         public Neuron Neuron
         {
             get => _neuron;
@@ -74,13 +82,20 @@ namespace NeuronUI.Models.ViewModels
                 _neuron = value;
                 OnPropertyChanged(nameof(Neuron));
 
-                SetViewData();
+                ErrorsSeries[0].Values.Clear();
+                ErrorsSeries[0].Values.Add(new ObservableValue(1));
+
+                RefreshViewData();
             }
         }
 
-        public ICommand Inicializate { get; set; }
+        public ICommand SetUpNeuron { get; set; }
 
-        public void SetViewData()
+        public ICommand StartTraining { get; set; }
+
+        public SeriesCollection ErrorsSeries { get; set; }
+
+        public void RefreshViewData()
         {
             Sill = $"Umbral: {_neuron.Sill}";
 
@@ -95,20 +110,57 @@ namespace NeuronUI.Models.ViewModels
             }
 
             Weights = $"Pesos: {weightsStr}";
-
-            IterationErrors = $"{_neuron.Errors.Sum() / 4}";
         }
 
         private bool CanInicializate()
         {
-            return !string.IsNullOrWhiteSpace(_maxSteps);
+            return !string.IsNullOrWhiteSpace(_maxSteps) && !string.IsNullOrWhiteSpace(_trainingRate);
         }
 
         private Task Init(object parameter)
         {
-            if (parameter is NeuronInputModel neuroInput)
+            if (parameter is NeuronSetUpInputModel neuroInput)
             {
                 Neuron = new Neuron(neuroInput.InputsNumber, neuroInput.TrainingRate);
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private Task TrainingNeuron(object parameter)
+        {
+            if (parameter is not NeuronTrainingInputModel neuronTraining)
+            {
+                return Task.CompletedTask;
+            }
+
+            int steps = 0;
+            bool sw = false;
+
+            while (!sw && (steps <= neuronTraining.MaxStepts))
+            {
+                ++steps;
+                sw = true;
+                List<double> patternErrors = new();
+
+                for (int i = 0; i < neuronTraining.Inputs.Count; i++)
+                {
+                    var input = neuronTraining.Inputs[i].ToArray();
+                    double result = _neuron.Output(input);
+
+                    double linealError = neuronTraining.Outputs[i] - result;
+                    double patternError = Math.Abs(linealError);
+                    patternErrors.Add(patternError);
+
+                    if (result != neuronTraining.Outputs[i])
+                    {
+                        _neuron.Learn(input, neuronTraining.Outputs[i]);
+                        sw = false;
+                        RefreshViewData();
+                    }
+                }
+
+                ErrorsSeries[0].Values.Add(new ObservableValue(patternErrors.Average()));
             }
 
             return Task.CompletedTask;
