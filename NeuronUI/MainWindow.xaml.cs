@@ -77,7 +77,7 @@ namespace NeuronUI
                     throw new ArgumentException("Data type not provided");
             }
 
-            StartTrainingButton.IsEnabled = InputsLoaded && OutputsLoaded;
+            SetUpNeuronButton.IsEnabled = InputsLoaded && OutputsLoaded;
         }
 
         private void ParseOutputs(List<string[]> data)
@@ -119,23 +119,26 @@ namespace NeuronUI
             }
         }
 
-        private void StartTrainingButton_Click(object sender, RoutedEventArgs e)
+        private void SetUpNeuronButton_Click(object sender, RoutedEventArgs e)
         {
             if (!Validation.GetHasError(MaxIterations) && !Validation.GetHasError(TrainingRate))
             {
-                MaxStepts = int.Parse(MaxIterations.Text);
-                double traininRate = double.Parse(TrainingRate.Text);
-
-                NeuronInputModel neuron = new()
+                if (!string.IsNullOrEmpty(MaxIterations.Text) && !string.IsNullOrEmpty(TrainingRate.Text))
                 {
-                    InputsNumber = Inputs[0].Count,
-                    TrainingRate = traininRate
-                };
+                    MaxStepts = int.Parse(MaxIterations.Text);
+                    double traininRate = double.Parse(TrainingRate.Text);
 
-                var dataContext = (NeuronViewModel)DataContext;
-                dataContext.Inicializate.Execute(neuron);
+                    NeuronSetUpInputModel neuron = new()
+                    {
+                        InputsNumber = Inputs[0].Count,
+                        TrainingRate = traininRate
+                    };
 
-                StartTraining.Visibility = Visibility.Visible;
+                    var dataContext = (NeuronViewModel)DataContext;
+                    dataContext.SetUpNeuron.Execute(neuron);
+
+                    StartTraining.Visibility = Visibility.Visible;
+                }
             }
         }
 
@@ -165,35 +168,14 @@ namespace NeuronUI
         private void StartTraining_Click(object sender, RoutedEventArgs e)
         {
             var dataContext = (NeuronViewModel)DataContext;
-            var neuron = dataContext.Neuron;
-            int steps = 0;
-            bool sw = false;
-
-            while (!sw && (steps <= MaxStepts))
+            NeuronTrainingInputModel neuronTraining = new()
             {
-                ++steps;
-                sw = true;
+                MaxStepts = MaxStepts,
+                Inputs = Inputs,
+                Outputs = Outputs
+            };
 
-                for (int i = 0; i < Inputs.Count; i++)
-                {
-                    var input = Inputs[i].ToArray();
-                    double result = neuron.Output(input);
-
-                    if (result != Outputs[i])
-                    {
-                        neuron.Learn(input, Outputs[i]);
-                        sw = false;
-                        dataContext.SetViewData();
-                        neuron.Errors.Clear();
-                    }
-                }
-            }
-
-            if (steps <= MaxStepts)
-            {
-                StartTraining.Visibility = Visibility.Hidden;
-                TrainingText.Text = $"Entrenamiento completado con {steps} pasos";
-            }
+            dataContext.StartTraining.Execute(neuronTraining);
         }
     }
 }
