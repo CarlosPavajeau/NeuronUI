@@ -1,0 +1,139 @@
+﻿<Window x:Class="NeuronUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:viewModels="clr-namespace:NeuronUI.Models.ViewModels"
+        xmlns:validations="clr-namespace:NeuronUI.Models.ViewModels.Validators"
+        xmlns:local="clr-namespace:NeuronUI"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="720" Width="950">
+    <Window.DataContext>
+        <viewModels:NeuronViewModel></viewModels:NeuronViewModel>
+    </Window.DataContext>
+    <Grid>
+        <StackPanel Margin="0">
+            <TextBlock Style="{DynamicResource MaterialDesignHeadline4TextBlock}" HorizontalAlignment="Center">
+                Neuron app
+            </TextBlock>
+            <Border Padding="1" Margin="35 20 0 0"></Border>
+            <StackPanel Orientation="Horizontal">
+                <TextBox x:Name="MaxIterations"
+                         FontSize="17"
+                         materialDesign:HintAssist.Hint="Número de iteraciones"
+                         materialDesign:HintAssist.HelperText="Ingrese el número máximo de iteraciones"
+                         materialDesign:HintAssist.IsFloating="True"
+                         materialDesign:HintAssist.HelperTextFontSize="12"
+                         Width="250" 
+                         Margin="35 0 0 0">
+                    <TextBox.Text>
+                        <Binding Path="MaxSteps" ValidatesOnDataErrors="True" UpdateSourceTrigger="PropertyChanged">
+                            <Binding.ValidationRules>
+                                <validations:NumericField></validations:NumericField>
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </TextBox.Text>
+                </TextBox>
+                <TextBox x:Name="TrainingRate"
+                         FontSize="17"
+                         materialDesign:HintAssist.Hint="Tasa de aprendizaje"
+                         materialDesign:HintAssist.HelperText="Ingrese la tasa de aprendizaje"
+                         materialDesign:HintAssist.IsFloating="True"
+                         materialDesign:HintAssist.HelperTextFontSize="12"
+                         Width="250" 
+                         Margin="35 0 0 0" 
+                         Style="{DynamicResource MaterialDesignTextBox}">
+                    <TextBox.Text>
+                        <Binding Path="TrainingRate" ValidatesOnDataErrors="True" UpdateSourceTrigger="PropertyChanged">
+                            <Binding.ValidationRules>
+                                <validations:DoubleRange Minimum="0.001" Maximum="1"></validations:DoubleRange>
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </TextBox.Text>
+                </TextBox>
+                <StackPanel Margin="20 0 0 0" Orientation="Horizontal">
+                    <TextBlock 
+                        x:Name="InputsState" 
+                        VerticalAlignment="Center" 
+                        Style="{DynamicResource MaterialDesignTextBlock}"
+                        Margin="0 0 10 0">Entradas cargadas: NO</TextBlock>
+                    <TextBlock 
+                        x:Name="OutputsState" 
+                        VerticalAlignment="Center"
+                        Style="{DynamicResource MaterialDesignTextBlock}"
+                        Margin="10 0 10 0">Salidas cargadas: NO</TextBlock>
+                </StackPanel>
+            </StackPanel>
+            <Border Padding="1" Margin="30"></Border>
+            <StackPanel Orientation="Horizontal" Margin="35 0 0 0">
+                <Button 
+                    x:Name="LoadInputsButton"
+                    Style="{StaticResource MaterialDesignOutlinedButton}"
+                    Click="LoadInputsButton_Click"
+                    Margin="0 0 15 0">
+                    Cargar archivo de entradas
+                </Button>
+                <Button
+                    x:Name="LoadOutputsButton"
+                    Click="LoadOutputsButton_Click"
+                    Style="{StaticResource MaterialDesignOutlinedButton}">
+                    Cargar archivo de salidas
+                </Button>
+                <Button
+                    x:Name="StartTrainingButton"
+                    Click="StartTrainingButton_Click"
+                    Margin="20 0 0 0" 
+                    IsEnabled="False">Inicializar neurona</Button>
+            </StackPanel>
+            <StackPanel Margin="20 10 0 0">
+                <StackPanel Margin="15 0 0 0" Orientation="Horizontal">
+                    <TextBlock 
+                        x:Name="InputsCount" 
+                        FontSize="17"
+                        VerticalAlignment="Center" 
+                        Style="{DynamicResource MaterialDesignTextBlock}"
+                        Margin="0 0 10 0"></TextBlock>
+                    <TextBlock 
+                        x:Name="PatternsCount" 
+                        FontSize="17"
+                        VerticalAlignment="Center"
+                        Style="{DynamicResource MaterialDesignTextBlock}"
+                        Margin="10 0 10 0"></TextBlock>
+                </StackPanel>
+            </StackPanel>
+            <StackPanel Margin="20 10 0 0">
+                <StackPanel Margin="15 0 0 0" Orientation="Vertical">
+                    <TextBlock 
+                        x:Name="Weights" 
+                        FontSize="17"
+                        VerticalAlignment="Center" 
+                        Style="{DynamicResource MaterialDesignTextBlock}"
+                        Margin="0 0 10 0"
+                        Text="{Binding Path=Weights, UpdateSourceTrigger=PropertyChanged}">
+                    </TextBlock>
+                    <TextBlock 
+                        x:Name="Sill" 
+                        FontSize="17"
+                        VerticalAlignment="Center"
+                        Style="{DynamicResource MaterialDesignTextBlock}"
+                        Text="{Binding Path=Sill, UpdateSourceTrigger=PropertyChanged}">
+                    </TextBlock>
+                    <TextBlock 
+                        x:Name="IterationError" 
+                        FontSize="17"
+                        VerticalAlignment="Center"
+                        Style="{DynamicResource MaterialDesignTextBlock}"
+                        Text="{Binding Path=IterationErrors, UpdateSourceTrigger=PropertyChanged}">
+                    </TextBlock>
+                </StackPanel>
+            </StackPanel>
+            <Button 
+                x:Name="StartTraining" 
+                Visibility="Hidden" 
+                Margin="50 20 50 0"
+                Click="StartTraining_Click">Empezar entrenamiento</Button>
+            <TextBlock x:Name="TrainingText" TextAlignment="Center" Style="{StaticResource MaterialDesignHeadline5TextBlock}"></TextBlock>
+        </StackPanel>
+    </Grid>
+</Window>
