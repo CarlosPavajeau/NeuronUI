@@ -34,7 +34,8 @@ namespace NeuronUI.Models
 
         public void Learn(double[] inputs, double expectedOutput)
         {
-            double error = expectedOutput - Output(inputs);
+            double output = Output(inputs);
+            double error = expectedOutput - output;
             Errors.Add(Math.Abs(error));
 
             for (int i = 0; i < Weights.Count; i++)
