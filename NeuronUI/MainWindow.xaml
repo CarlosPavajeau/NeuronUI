@@ -1,4 +1,4 @@
-﻿<Window x:Class="NeuronUI.MainWindow"
+<Window x:Class="NeuronUI.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -8,7 +8,8 @@
         xmlns:validations="clr-namespace:NeuronUI.Models.ViewModels.Validators"
         xmlns:local="clr-namespace:NeuronUI"
         mc:Ignorable="d"
-        Title="MainWindow" Height="720" Width="950">
+        WindowState="Maximized"
+        Title="Neuron App" Height="720" Width="950">
   <Window.DataContext>
     <viewModels:NeuronViewModel />
   </Window.DataContext>
