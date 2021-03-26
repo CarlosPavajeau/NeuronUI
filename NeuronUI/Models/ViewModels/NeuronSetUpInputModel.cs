@@ -2,7 +2,7 @@
 {
     public class NeuronSetUpInputModel
     {
-        public int InputsNumber { get; set; }
-        public double TrainingRate { get; set; }
+        public int InputsNumber { get; init; }
+        public double TrainingRate { get; init; }
     }
 }

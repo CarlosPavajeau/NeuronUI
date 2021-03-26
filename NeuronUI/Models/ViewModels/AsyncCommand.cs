@@ -4,10 +4,10 @@ using System.Windows.Input;
 
 namespace NeuronUI.Models.ViewModels
 {
-    public class AsyncCommand : ICommand
+    public sealed class AsyncCommand : ICommand
     {
         private readonly Func<Task> _execute;
-        private readonly Func<object, Task> _executewithParams;
+        private readonly Func<object, Task> _executeWithParams;
         private readonly Func<bool> _canExecute;
         private bool _isExecuting;
 
@@ -27,7 +27,7 @@ namespace NeuronUI.Models.ViewModels
 
         public AsyncCommand(Func<object, Task> execute, Func<bool> canExecute)
         {
-            _executewithParams = execute;
+            _executeWithParams = execute;
             _canExecute = canExecute;
         }
 
@@ -44,9 +44,9 @@ namespace NeuronUI.Models.ViewModels
             OnCanExecuteChanged();
             try
             {
-                if (parameter != null && _executewithParams != null)
+                if (parameter != null && _executeWithParams != null)
                 {
-                    await _executewithParams(parameter);
+                    await _executeWithParams(parameter);
                 }
                 else
                 {
@@ -60,7 +60,7 @@ namespace NeuronUI.Models.ViewModels
             }
         }
 
-        protected virtual void OnCanExecuteChanged()
+        private void OnCanExecuteChanged()
         {
             CanExecuteChanged?.Invoke(this, new EventArgs());
         }

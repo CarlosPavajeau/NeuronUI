@@ -10,15 +10,17 @@ namespace NeuronUI.Models.ViewModels.Validators
         public override ValidationResult Validate(object value, CultureInfo cultureInfo)
         {
             string str = value as string;
+            if (string.IsNullOrEmpty(str))
+            {
+                return new ValidationResult(false, "Este campo es requerido.");
+            }
 
             string pattern = @"([0-9]*[.])?[0-9]+";
             Regex regex = new(pattern, RegexOptions.Singleline, TimeSpan.FromSeconds(1));
 
-            if (!regex.Match(str).Success)
-            {
-                return new ValidationResult(false, "Este campo debe ser númerico");
-            }
-            return new ValidationResult(true, null);
+            return !regex.Match(str).Success
+                ? new ValidationResult(false, "Este campo debe ser númerico")
+                : new ValidationResult(true, null);
         }
     }
 }

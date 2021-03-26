@@ -5,7 +5,7 @@ namespace NeuronUI
     /// <summary>
     /// Interaction logic for ErrorChart.xaml
     /// </summary>
-    public partial class ErrorChart : UserControl
+    public partial class ErrorChart
     {
         public ErrorChart()
         {

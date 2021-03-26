@@ -4,10 +4,10 @@ namespace NeuronUI.Models.ViewModels
 {
     public class NeuronTrainingInputModel
     {
-        public List<List<double>> Inputs { get; set; }
-        public List<double> Outputs { get; set; }
+        public List<List<double>> Inputs { get; init; }
+        public List<double> Outputs { get; init; }
 
-        public int MaxStepts { get; set; }
-        public double ErrorTolerance { get; set; }
+        public int MaxSteps { get; init; }
+        public double ErrorTolerance { get; init; }
     }
 }

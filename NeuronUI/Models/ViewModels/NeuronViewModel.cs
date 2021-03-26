@@ -22,7 +22,7 @@ namespace NeuronUI.Models.ViewModels
 
         public NeuronViewModel()
         {
-            SetUpNeuron = new AsyncCommand(Init, CanInicializate);
+            SetUpNeuron = new AsyncCommand(Init, CanSetUp);
             StartTraining = new AsyncCommand(TrainingNeuron);
 
             ErrorsSeries = new SeriesCollection
@@ -61,28 +61,19 @@ namespace NeuronUI.Models.ViewModels
         public string TrainingRate
         {
             get => _trainingRate;
-            set
-            {
-                OnPropertyChanged(ref _trainingRate, value);
-            }
+            set => OnPropertyChanged(ref _trainingRate, value);
         }
 
         public string ErrorTolerance
         {
             get => _errorTolerance;
-            set
-            {
-                OnPropertyChanged(ref _errorTolerance, value);
-            }
+            set => OnPropertyChanged(ref _errorTolerance, value);
         }
 
         public string MaxSteps
         {
             get => _maxSteps;
-            set
-            {
-                OnPropertyChanged(ref _maxSteps, value);
-            }
+            set => OnPropertyChanged(ref _maxSteps, value);
         }
 
         public Neuron Neuron
@@ -100,13 +91,13 @@ namespace NeuronUI.Models.ViewModels
             }
         }
 
-        public ICommand SetUpNeuron { get; set; }
+        public ICommand SetUpNeuron { get; }
 
-        public ICommand StartTraining { get; set; }
+        public ICommand StartTraining { get; }
 
         public SeriesCollection ErrorsSeries { get; set; }
 
-        public void RefreshViewData()
+        private void RefreshViewData()
         {
             Sill = $"Umbral: {_neuron.Sill}";
 
@@ -123,16 +114,16 @@ namespace NeuronUI.Models.ViewModels
             Weights = $"Pesos: {weightsStr}";
         }
 
-        private bool CanInicializate()
+        private bool CanSetUp()
         {
             return !string.IsNullOrWhiteSpace(_maxSteps) && !string.IsNullOrWhiteSpace(_trainingRate);
         }
 
         private Task Init(object parameter)
         {
-            if (parameter is NeuronSetUpInputModel neuroInput)
+            if (parameter is NeuronSetUpInputModel neuronInput)
             {
-                Neuron = new Neuron(neuroInput.InputsNumber, neuroInput.TrainingRate);
+                Neuron = new Neuron(neuronInput.InputsNumber, neuronInput.TrainingRate);
             }
 
             return Task.CompletedTask;
@@ -148,7 +139,7 @@ namespace NeuronUI.Models.ViewModels
             int steps = 0;
             bool sw = false;
 
-            while (!sw && (steps <= neuronTraining.MaxStepts))
+            while (!sw && (steps <= neuronTraining.MaxSteps))
             {
                 ++steps;
 
@@ -162,11 +153,11 @@ namespace NeuronUI.Models.ViewModels
                     double patternError = Math.Abs(linealError);
                     patternErrors.Add(patternError);
 
-                    if (result != neuronTraining.Outputs[i])
-                    {
-                        _neuron.Learn(input, neuronTraining.Outputs[i]);
-                        RefreshViewData();
-                    }
+                    if (result == neuronTraining.Outputs[i]) 
+                        continue;
+                    
+                    _neuron.Learn(input, neuronTraining.Outputs[i]);
+                    RefreshViewData();
                 }
 
                 double patterErrorAverage = patternErrors.Average();

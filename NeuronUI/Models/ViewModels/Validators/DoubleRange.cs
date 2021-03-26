@@ -11,6 +11,10 @@ namespace NeuronUI.Models.ViewModels.Validators
         public override ValidationResult Validate(object value, CultureInfo cultureInfo)
         {
             string str = value as string;
+            if (string.IsNullOrEmpty(str))
+            {
+                return new ValidationResult(false, "Este campo es requerido.");
+            }
 
             if (!double.TryParse(str, out double val))
             {

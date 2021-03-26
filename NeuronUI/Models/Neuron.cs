@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NeuronUI.Models
 {
@@ -10,16 +11,12 @@ namespace NeuronUI.Models
             Weights = new List<double>(inputsNumber);
             TrainingRate = trainingRate;
 
-            Errors = new List<double>();
-
             Init();
         }
 
         public List<double> Weights { get; }
-        public double Sill { get; set; }
-        public double TrainingRate { get; }
-
-        public List<double> Errors { get; }
+        public double Sill { get; private set; }
+        private double TrainingRate { get; }
 
         private void Init()
         {
@@ -57,12 +54,7 @@ namespace NeuronUI.Models
 
         private double NextInput(double[] inputs)
         {
-            double acc = 0;
-            for (int i = 0; i < inputs.Length; i++)
-            {
-                acc += inputs[i] * Weights[i];
-            }
-
+            double acc = inputs.Select((t, i) => t * Weights[i]).Sum();
             return acc + Sill;
         }
     }

@@ -12,7 +12,7 @@ namespace NeuronUI
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow
     {
         public MainWindow()
         {
@@ -21,16 +21,16 @@ namespace NeuronUI
             NeuronViewModel = (NeuronViewModel)DataContext;
         }
 
-        public bool InputsLoaded { get; set; }
-        public bool OutputsLoaded { get; set; }
+        private bool InputsLoaded { get; set; }
+        private bool OutputsLoaded { get; set; }
 
-        public List<List<double>> TrainingInputs { get; set; }
-        public List<double> Outputs { get; set; }
-        public List<List<double>> SimulationInputs { get; set; }
+        private List<List<double>> TrainingInputs { get; set; }
+        private List<double> Outputs { get; set; }
+        private List<List<double>> SimulationInputs { get; set; }
 
-        public NeuronViewModel NeuronViewModel { get; }
+        private NeuronViewModel NeuronViewModel { get; }
 
-        public int MaxStepts { get; set; }
+        private int MaxSteps { get; set; }
 
         private void LoadInputsButton_Click(object sender, RoutedEventArgs e)
         {
@@ -171,13 +171,13 @@ namespace NeuronUI
                     !string.IsNullOrEmpty(TrainingRate.Text) &&
                     !string.IsNullOrEmpty(ErrorTolerance.Text))
                 {
-                    MaxStepts = int.Parse(MaxIterations.Text);
-                    double traininRate = double.Parse(TrainingRate.Text);
+                    MaxSteps = int.Parse(MaxIterations.Text);
+                    double trainingRate = double.Parse(TrainingRate.Text);
 
                     NeuronSetUpInputModel neuron = new()
                     {
                         InputsNumber = TrainingInputs[0].Count,
-                        TrainingRate = traininRate
+                        TrainingRate = trainingRate
                     };
 
                     NeuronViewModel.SetUpNeuron.Execute(neuron);
@@ -202,9 +202,11 @@ namespace NeuronUI
 
         private static string SelectFile()
         {
-            OpenFileDialog openFileDialog = new();
-            openFileDialog.DefaultExt = "*.csv";
-            openFileDialog.Filter = "CSV Files (*.csv)|*.csv|TXT Files (*.txt)|*.txt";
+            OpenFileDialog openFileDialog = new()
+            {
+                DefaultExt = "*.csv", 
+                Filter = "CSV Files (*.csv)|*.csv|TXT Files (*.txt)|*.txt"
+            };
 
             bool? result = openFileDialog.ShowDialog();
 
@@ -216,7 +218,7 @@ namespace NeuronUI
             double errorTolerance = double.Parse(NeuronViewModel.ErrorTolerance);
             NeuronTrainingInputModel neuronTraining = new()
             {
-                MaxStepts = MaxStepts,
+                MaxSteps = MaxSteps,
                 Inputs = TrainingInputs,
                 Outputs = Outputs,
                 ErrorTolerance = errorTolerance
