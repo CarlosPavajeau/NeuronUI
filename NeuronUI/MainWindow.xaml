@@ -58,7 +58,7 @@
                     </Binding>
                 </TextBox.Text>
             </TextBox>
-            <TextBox x:Name="MaximumErrorAllowed"
+            <TextBox x:Name="ErrorTolerance"
                          FontSize="17"
                          materialDesign:HintAssist.Hint="Error máximo permitido"
                          materialDesign:HintAssist.HelperText="Ingrese el error máximo permitido"
@@ -66,10 +66,10 @@
                          materialDesign:HintAssist.HelperTextFontSize="12"
                      Margin="0 0 0 25">
                 <TextBox.Text>
-                    <Binding Path="TrainingRate" ValidatesOnDataErrors="True" UpdateSourceTrigger="PropertyChanged">
+                    <Binding Path="ErrorTolerance" ValidatesOnDataErrors="True" UpdateSourceTrigger="PropertyChanged">
                         <Binding.ValidationRules>
                             <validations:FloatField></validations:FloatField>
-                            <validations:DoubleRange Minimum="0.001" Maximum="1"></validations:DoubleRange>
+                            <validations:DoubleRange Minimum="0.0001" Maximum="1"></validations:DoubleRange>
                         </Binding.ValidationRules>
                     </Binding>
                 </TextBox.Text>
@@ -163,20 +163,45 @@
                 Style="{DynamicResource MaterialDesignTextBlock}"
                 Text="{Binding Path=Sill, UpdateSourceTrigger=PropertyChanged}">
             </TextBlock>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <StackPanel
+                x:Name="SimulationButtons"
+                Visibility="Hidden"
+                Orientation="Horizontal"
+                Margin="0 15 0 0"
+                HorizontalAlignment="Center">
                 <Button 
                     x:Name="LoadSimulationDataButton"
+                    IsEnabled="False"
+                    Click="LoadSimulationDataButton_Click"
                     Margin="0 0 20 0">
                     Cargar archivo de simulación
                 </Button>
                 <Button 
-                    x:Name="SimulateButton">
+                    x:Name="SimulateButton"
+                    Click="SimulateButton_Click"
+                    IsEnabled="False">
                     Simular
                 </Button>
             </StackPanel>
             <TextBlock 
-                x:Name="SimulationOutput" 
-                Margin="20"></TextBlock>
+                x:Name="SimulateInputsError" 
+                HorizontalAlignment="Center" 
+                Style="{DynamicResource MaterialDesignOverlineTextBlock}" 
+                Foreground="Red"
+                Width="500"
+                Margin="0 15 0 0"
+                FontSize="17"
+                Visibility="Collapsed"
+                TextWrapping="Wrap">
+                Error: El número de entradas del archivo de simulación 
+                no corresponde con el número de entradas de la neurona. 
+                Cargue otro archivo
+            </TextBlock>
+            <StackPanel 
+                x:Name="SimulationOutputs" 
+                Orientation="Vertical"
+                HorizontalAlignment="Center"
+                Margin="30"></StackPanel>
         </StackPanel>
         <local:ErrorChart 
             Height="200" 

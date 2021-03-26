@@ -17,15 +17,18 @@ namespace NeuronUI
         public MainWindow()
         {
             InitializeComponent();
+
+            NeuronViewModel = (NeuronViewModel)DataContext;
         }
 
         public bool InputsLoaded { get; set; }
         public bool OutputsLoaded { get; set; }
 
-        public List<List<double>> Inputs { get; set; }
+        public List<List<double>> TrainingInputs { get; set; }
         public List<double> Outputs { get; set; }
+        public List<List<double>> SimulationInputs { get; set; }
 
-        public NeuronViewModel NeuronViewModel { get; set; }
+        public NeuronViewModel NeuronViewModel { get; }
 
         public int MaxStepts { get; set; }
 
@@ -39,7 +42,7 @@ namespace NeuronUI
 
             InputsState.Text = $"Entradas cargadas: Sí";
             InputsLoaded = true;
-            OnLoadData(data, FileDataType.Input);
+            OnLoadData(data, FileDataType.TrainingInputs);
         }
 
         private void LoadOutputsButton_Click(object sender, RoutedEventArgs e)
@@ -52,32 +55,48 @@ namespace NeuronUI
 
             OutputsState.Text = $"Salidas cargadas: Sí";
             OutputsLoaded = true;
-            OnLoadData(data, FileDataType.Output);
+            OnLoadData(data, FileDataType.Outputs);
         }
 
         private void OnLoadData(List<string[]> data, FileDataType dataType)
         {
             switch (dataType)
             {
-                case FileDataType.Input:
+                case FileDataType.TrainingInputs:
                     {
                         ParseInputs(data);
 
-                        InputsCount.Text = $"Entradas: {Inputs[0].Count}";
-                        PatternsCount.Text = $"Patrones: {Inputs.Count}";
+                        InputsCount.Text = $"Entradas: {TrainingInputs[0].Count}";
+                        PatternsCount.Text = $"Patrones: {TrainingInputs.Count}";
                         break;
                     }
-                case FileDataType.Output:
+                case FileDataType.Outputs:
                     {
                         ParseOutputs(data);
                         break;
                     }
+                case FileDataType.SimulationInputs:
+                    {
+                        ParseSimulationInputs(data);
 
+                        if (TrainingInputs[0].Count == SimulationInputs[0].Count)
+                        {
+                            SimulateButton.IsEnabled = true;
+                            SimulateInputsError.Visibility = Visibility.Collapsed;
+                            ClearSimulationOutputs();
+                        }
+                        else
+                        {
+                            SimulateInputsError.Visibility = Visibility.Visible;
+                        }
+                        break;
+                    }
                 default:
                     throw new ArgumentException("Data type not provided");
             }
 
             SetUpNeuronButton.IsEnabled = InputsLoaded && OutputsLoaded;
+            StartTraining.Visibility = Visibility.Hidden;
         }
 
         private void ParseOutputs(List<string[]> data)
@@ -98,7 +117,7 @@ namespace NeuronUI
 
         private void ParseInputs(List<string[]> data)
         {
-            Inputs = new();
+            TrainingInputs = new();
 
             foreach (var item in data)
             {
@@ -113,7 +132,30 @@ namespace NeuronUI
 
                 if (inputs.Any())
                 {
-                    Inputs.Add(inputs);
+                    TrainingInputs.Add(inputs);
+                }
+
+            }
+        }
+
+        private void ParseSimulationInputs(List<string[]> data)
+        {
+            SimulationInputs = new();
+
+            foreach (var item in data)
+            {
+                List<double> inputs = new();
+                foreach (var inp in item)
+                {
+                    if (double.TryParse(inp, out double result))
+                    {
+                        inputs.Add(result);
+                    }
+                }
+
+                if (inputs.Any())
+                {
+                    SimulationInputs.Add(inputs);
                 }
 
             }
@@ -121,23 +163,27 @@ namespace NeuronUI
 
         private void SetUpNeuronButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!Validation.GetHasError(MaxIterations) && !Validation.GetHasError(TrainingRate))
+            if (!Validation.GetHasError(MaxIterations) &&
+                !Validation.GetHasError(TrainingRate) &&
+                !Validation.GetHasError(ErrorTolerance))
             {
-                if (!string.IsNullOrEmpty(MaxIterations.Text) && !string.IsNullOrEmpty(TrainingRate.Text))
+                if (!string.IsNullOrEmpty(MaxIterations.Text) &&
+                    !string.IsNullOrEmpty(TrainingRate.Text) &&
+                    !string.IsNullOrEmpty(ErrorTolerance.Text))
                 {
                     MaxStepts = int.Parse(MaxIterations.Text);
                     double traininRate = double.Parse(TrainingRate.Text);
 
                     NeuronSetUpInputModel neuron = new()
                     {
-                        InputsNumber = Inputs[0].Count,
+                        InputsNumber = TrainingInputs[0].Count,
                         TrainingRate = traininRate
                     };
 
-                    var dataContext = (NeuronViewModel)DataContext;
-                    dataContext.SetUpNeuron.Execute(neuron);
+                    NeuronViewModel.SetUpNeuron.Execute(neuron);
 
                     StartTraining.Visibility = Visibility.Visible;
+                    ClearSimulationOutputs();
                 }
             }
         }
@@ -167,15 +213,65 @@ namespace NeuronUI
 
         private void StartTraining_Click(object sender, RoutedEventArgs e)
         {
-            var dataContext = (NeuronViewModel)DataContext;
+            double errorTolerance = double.Parse(NeuronViewModel.ErrorTolerance);
             NeuronTrainingInputModel neuronTraining = new()
             {
                 MaxStepts = MaxStepts,
-                Inputs = Inputs,
-                Outputs = Outputs
+                Inputs = TrainingInputs,
+                Outputs = Outputs,
+                ErrorTolerance = errorTolerance
             };
 
-            dataContext.StartTraining.Execute(neuronTraining);
+            NeuronViewModel.StartTraining.Execute(neuronTraining);
+
+            SimulationButtons.Visibility = Visibility.Visible;
+            LoadSimulationDataButton.IsEnabled = true;
+            ClearSimulationOutputs();
+        }
+
+        private void ClearSimulationOutputs()
+        {
+            SimulationOutputs.Children.Clear();
+        }
+
+        private void LoadSimulationDataButton_Click(object sender, RoutedEventArgs e)
+        {
+            var data = LoadCsvDataFromFile();
+            if (data is null)
+            {
+                return;
+            }
+
+            OnLoadData(data, FileDataType.SimulationInputs);
+        }
+
+        private void SimulateButton_Click(object sender, RoutedEventArgs e)
+        {
+            ClearSimulationOutputs();
+
+            foreach (var input in SimulationInputs)
+            {
+                double result = NeuronViewModel.Neuron.Output(input.ToArray());
+
+                TextBlock simulationOutput = new()
+                {
+                    FontSize = 17,
+                };
+
+                for (int i = 0; i < input.Count; i++)
+                {
+                    simulationOutput.Text += $"Entrada {i + 1}: {input[i]}";
+
+                    if (i < input.Count - 1)
+                    {
+                        simulationOutput.Text += ", ";
+                    }
+                }
+
+                simulationOutput.Text += $" -> Salida: {result}";
+
+                SimulationOutputs.Children.Add(simulationOutput);
+            }
         }
     }
 }
