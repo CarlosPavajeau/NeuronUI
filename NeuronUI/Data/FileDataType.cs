@@ -2,7 +2,8 @@
 {
     public enum FileDataType
     {
-        Input,
-        Output
+        TrainingInputs,
+        Outputs,
+        SimulationInputs
     }
 }
