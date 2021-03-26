@@ -18,6 +18,8 @@ namespace NeuronUI.Models.ViewModels
         private string _maxSteps = string.Empty;
         private string _trainingRate = string.Empty;
 
+        private string _errorTolerance = string.Empty;
+
         public NeuronViewModel()
         {
             SetUpNeuron = new AsyncCommand(Init, CanInicializate);
@@ -62,6 +64,15 @@ namespace NeuronUI.Models.ViewModels
             set
             {
                 OnPropertyChanged(ref _trainingRate, value);
+            }
+        }
+
+        public string ErrorTolerance
+        {
+            get => _errorTolerance;
+            set
+            {
+                OnPropertyChanged(ref _errorTolerance, value);
             }
         }
 
@@ -140,9 +151,8 @@ namespace NeuronUI.Models.ViewModels
             while (!sw && (steps <= neuronTraining.MaxStepts))
             {
                 ++steps;
-                sw = true;
-                List<double> patternErrors = new();
 
+                List<double> patternErrors = new();
                 for (int i = 0; i < neuronTraining.Inputs.Count; i++)
                 {
                     var input = neuronTraining.Inputs[i].ToArray();
@@ -155,12 +165,14 @@ namespace NeuronUI.Models.ViewModels
                     if (result != neuronTraining.Outputs[i])
                     {
                         _neuron.Learn(input, neuronTraining.Outputs[i]);
-                        sw = false;
                         RefreshViewData();
                     }
                 }
 
-                ErrorsSeries[0].Values.Add(new ObservableValue(patternErrors.Average()));
+                double patterErrorAverage = patternErrors.Average();
+                sw = patterErrorAverage <= neuronTraining.ErrorTolerance;
+
+                ErrorsSeries[0].Values.Add(new ObservableValue(patterErrorAverage));
             }
 
             return Task.CompletedTask;

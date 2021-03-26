@@ -8,5 +8,6 @@ namespace NeuronUI.Models.ViewModels
         public List<double> Outputs { get; set; }
 
         public int MaxStepts { get; set; }
+        public double ErrorTolerance { get; set; }
     }
 }
