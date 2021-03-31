@@ -6,6 +6,7 @@ using Microsoft.Win32;
 using NeuronUI.Data;
 using NeuronUI.Models;
 using NeuronUI.Models.ViewModels;
+using NeuronUI.Utils;
 
 namespace NeuronUI
 {
@@ -25,6 +26,13 @@ namespace NeuronUI
 
             Loaded += new RoutedEventHandler(OnLoaded);
         }
+
+        public NeuronTraining(OnSimulationClick onSimulationClick) : this()
+        {
+            SimulationClick += onSimulationClick;
+        }
+
+        public event OnSimulationClick SimulationClick;
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
@@ -46,12 +54,13 @@ namespace NeuronUI
                     NeuronSetUpInputModel neuron = new()
                     {
                         InputsNumber = TrainingInputs[0].Count,
-                        TrainingRate = trainingRate
+                        TrainingRate = trainingRate,
+                        TriggerFunction = TriggerFunctionField.SelectedItem.ToString()
                     };
 
                     NeuronViewModel.SetUpNeuron.Execute(neuron);
 
-                    StartTraining.Visibility = Visibility.Visible;
+                    StartTraining.IsEnabled = true;
                 }
             }
         }
@@ -105,7 +114,7 @@ namespace NeuronUI
         private void LoadInputsButton_Click(object sender, RoutedEventArgs e)
         {
             List<string[]> data = LoadCsvDataFromFile();
-            if (data is null && data.Count == 0)
+            if (data is null || data.Count == 0)
             {
                 return;
             }
@@ -174,6 +183,11 @@ namespace NeuronUI
             {
                 JsonFileMapper.SaveObject(saveFileDialog.FileName, NeuronViewModel.Neuron);
             }
+        }
+
+        private void StartSimulationButton_Click(object sender, RoutedEventArgs e)
+        {
+            SimulationClick?.Invoke();
         }
     }
 }

@@ -345,6 +345,7 @@
           </StackPanel>
           <Button
             x:Name="StartSimulationButton"
+            Click="StartSimulationButton_Click"
             IsEnabled="False"
             Margin="0 15 0 0">
             Iniciar simulación
