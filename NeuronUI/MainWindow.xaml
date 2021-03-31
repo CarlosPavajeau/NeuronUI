@@ -3,9 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:viewModels="clr-namespace:NeuronUI.Models.ViewModels"
-        xmlns:validations="clr-namespace:NeuronUI.Models.ViewModels.Validators"
         xmlns:local="clr-namespace:NeuronUI"
         mc:Ignorable="d"
         WindowState="Maximized"
@@ -15,6 +13,6 @@
     <viewModels:NeuronViewModel />
   </Window.DataContext>
   <Grid x:Name="MainGrid">
-    <local:NeuronTraining></local:NeuronTraining>
+    <local:NeuronTraining />
   </Grid>
 </Window>

@@ -1,6 +1,4 @@
-﻿using System.Windows;
-
-namespace NeuronUI
+﻿namespace NeuronUI
 {
     /// <summary>
     /// Interaction logic for App.xaml

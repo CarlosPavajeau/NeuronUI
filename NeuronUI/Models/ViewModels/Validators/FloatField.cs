@@ -20,7 +20,7 @@ namespace NeuronUI.Models.ViewModels.Validators
 
             return !regex.Match(str).Success
                 ? new ValidationResult(false, "Este campo debe ser númerico")
-                : new ValidationResult(true, null);
+                : ValidationResult.ValidResult;
         }
     }
 }

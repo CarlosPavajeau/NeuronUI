@@ -13,7 +13,7 @@ namespace NeuronUI
     /// <summary>
     /// Interaction logic for NeuronTraining.xaml
     /// </summary>
-    public partial class NeuronTraining : UserControl
+    public partial class NeuronTraining
     {
         private NeuronViewModel NeuronViewModel { get; set; }
 
@@ -24,7 +24,7 @@ namespace NeuronUI
         {
             InitializeComponent();
 
-            Loaded += new RoutedEventHandler(OnLoaded);
+            Loaded += OnLoaded;
         }
 
         public NeuronTraining(OnSimulationClick onSimulationClick) : this()
@@ -154,34 +154,37 @@ namespace NeuronUI
 
         private void StartTraining_Click(object sender, RoutedEventArgs e)
         {
-
-            if (!Validation.GetHasError(MaxIterationsField) &&
-                !Validation.GetHasError(TrainingRateField) &&
-                !Validation.GetHasError(ErrorToleranceField))
+            if (Validation.GetHasError(MaxIterationsField) || Validation.GetHasError(TrainingRateField) ||
+                Validation.GetHasError(ErrorToleranceField))
             {
-                if (!string.IsNullOrEmpty(MaxIterationsField.Text) &&
-                   !string.IsNullOrEmpty(TrainingRateField.Text) &&
-                   !string.IsNullOrEmpty(ErrorToleranceField.Text))
-                {
-                    if (TrainingInputs != null && TrainingInputs.Count > 0)
-                    {
-                        double errorTolerance = double.Parse(NeuronViewModel.ErrorTolerance);
-                        int maxSteps = int.Parse(NeuronViewModel.MaxSteps);
-                        NeuronTrainingInputModel neuronTraining = new()
-                        {
-                            MaxSteps = maxSteps,
-                            Inputs = TrainingInputs,
-                            Outputs = Outputs,
-                            ErrorTolerance = errorTolerance
-                        };
-
-                        NeuronViewModel.StartTraining.Execute(neuronTraining);
-
-                        SaveNeuron.IsEnabled = true;
-                        StartSimulationButton.IsEnabled = true;
-                    }
-                }
+                return;
             }
+
+            if (string.IsNullOrEmpty(MaxIterationsField.Text) || string.IsNullOrEmpty(TrainingRateField.Text) ||
+                string.IsNullOrEmpty(ErrorToleranceField.Text))
+            {
+                return;
+            }
+
+            if (TrainingInputs == null || TrainingInputs.Count <= 0)
+            {
+                return;
+            }
+
+            double errorTolerance = double.Parse(NeuronViewModel.ErrorTolerance);
+            int maxSteps = int.Parse(NeuronViewModel.MaxSteps);
+            NeuronTrainingInputModel neuronTraining = new()
+            {
+                MaxSteps = maxSteps,
+                Inputs = TrainingInputs,
+                Outputs = Outputs,
+                ErrorTolerance = errorTolerance
+            };
+
+            NeuronViewModel.StartTraining.Execute(neuronTraining);
+
+            SaveNeuron.IsEnabled = true;
+            StartSimulationButton.IsEnabled = true;
         }
 
         private void SaveNeuron_Click(object sender, RoutedEventArgs e)

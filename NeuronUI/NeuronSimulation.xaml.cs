@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
 using LiveCharts.Defaults;
 using Microsoft.Win32;
 using NeuronUI.Data;
@@ -14,13 +13,12 @@ namespace NeuronUI
     /// <summary>
     /// Interaction logic for NeuronSimulation.xaml
     /// </summary>
-    public partial class NeuronSimulation : UserControl
+    public partial class NeuronSimulation
     {
         private NeuronViewModel NeuronViewModel { get; set; }
 
         private List<List<double>> Inputs { get; set; }
         private List<double> ExpectedOutputs { get; set; }
-        private List<double> ObtainedOutputs { get; set; } = new();
 
         private List<SimulationData> SimulationData { get; set; }
 
@@ -28,9 +26,9 @@ namespace NeuronUI
         {
             InitializeComponent();
 
-            Loaded += new RoutedEventHandler(OnLoaded);
+            Loaded += OnLoaded;
 
-            SimulationData = new();
+            SimulationData = new List<SimulationData>();
             DataTable.ItemsSource = SimulationData;
         }
 
@@ -44,6 +42,10 @@ namespace NeuronUI
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
             NeuronViewModel = DataContext as NeuronViewModel;
+            if (NeuronViewModel is null)
+            {
+                return;
+            }
 
             NeuronViewModel.VersusSeries[0].Values.Clear();
             NeuronViewModel.VersusSeries[1].Values.Clear();
@@ -51,13 +53,13 @@ namespace NeuronUI
 
         private static List<string[]> LoadCsvDataFromFile()
         {
-            string fileName = SelectFile();
+            var fileName = SelectFile();
             if (string.IsNullOrEmpty(fileName))
             {
                 return null;
             }
 
-            List<string[]> data = CsvDataLoader.LoadCsv(fileName);
+            var data = CsvDataLoader.LoadCsv(fileName);
             return data;
         }
 
@@ -69,7 +71,7 @@ namespace NeuronUI
                 Filter = "CSV Files (*.csv)|*.csv|TXT Files (*.txt)|*.txt"
             };
 
-            bool? result = openFileDialog.ShowDialog();
+            var result = openFileDialog.ShowDialog();
 
             return result.HasValue && result.Value ? openFileDialog.FileName : string.Empty;
         }
@@ -135,6 +137,7 @@ namespace NeuronUI
                         inputsStr += ", ";
                     }
                 }
+
                 SimulationData simulationData = new()
                 {
                     Inputs = inputsStr,
@@ -146,7 +149,6 @@ namespace NeuronUI
 
                 NeuronViewModel.VersusSeries[0].Values.Add(new ObservableValue(ExpectedOutputs[i]));
                 NeuronViewModel.VersusSeries[1].Values.Add(new ObservableValue(obtainedOutput));
-                ObtainedOutputs.Add(obtainedOutput);
                 DataTable.Items.Refresh();
             }
         }

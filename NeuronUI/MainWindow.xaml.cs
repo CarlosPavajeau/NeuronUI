@@ -11,7 +11,7 @@ namespace NeuronUI
         {
             InitializeComponent();
 
-            Loaded += new RoutedEventHandler(OnLoaded);
+            Loaded += OnLoaded;
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e)

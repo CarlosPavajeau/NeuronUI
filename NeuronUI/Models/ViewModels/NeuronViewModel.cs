@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -150,7 +151,7 @@ namespace NeuronUI.Models.ViewModels
 
         private void RefreshViewData()
         {
-            Sill = _neuron.Sill.ToString();
+            Sill = _neuron.Sill.ToString(CultureInfo.InvariantCulture);
 
             string weightsStr = string.Empty;
             for (int i = 0; i < _neuron.Weights.Count; i++)

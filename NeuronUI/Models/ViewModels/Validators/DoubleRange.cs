@@ -26,12 +26,9 @@ namespace NeuronUI.Models.ViewModels.Validators
                 return new ValidationResult(false, $"El valor digitado no debe ser mayor a {Maximum}");
             }
 
-            if (val < Minimum)
-            {
-                return new ValidationResult(false, $"El valor digitado no debe ser menor a {Minimum}");
-            }
-
-            return new ValidationResult(true, null);
+            return val < Minimum
+                ? new ValidationResult(false, $"El valor digitado no debe ser menor a {Minimum}")
+                : ValidationResult.ValidResult;
         }
     }
 }
