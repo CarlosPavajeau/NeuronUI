@@ -177,7 +177,6 @@
         </Button>
         <Button
           x:Name="LoadNeuronButton"
-          IsEnabled="False"
           Click="LoadNeuronButton_Click"
           Margin="0 35 0 0">
           <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -300,7 +299,7 @@
               <TextBlock>
                 Iteraciones hechas:
                 <Span>
-                  <TextBlock Text="{Binding Steps}"/>
+                  <TextBlock Text="{Binding Steps, Delay=1000}"/>
                 </Span>
               </TextBlock>
             </materialDesign:Chip.Content>

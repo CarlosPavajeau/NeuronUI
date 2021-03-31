@@ -107,6 +107,7 @@ namespace NeuronUI
                 {
                     NeuronViewModel.Neuron = neuron;
                     StartTraining.IsEnabled = true;
+                    StartSimulationButton.IsEnabled = true;
                 }
             }
         }
@@ -153,20 +154,34 @@ namespace NeuronUI
 
         private void StartTraining_Click(object sender, RoutedEventArgs e)
         {
-            double errorTolerance = double.Parse(NeuronViewModel.ErrorTolerance);
-            int maxSteps = int.Parse(NeuronViewModel.MaxSteps);
-            NeuronTrainingInputModel neuronTraining = new()
+
+            if (!Validation.GetHasError(MaxIterationsField) &&
+                !Validation.GetHasError(TrainingRateField) &&
+                !Validation.GetHasError(ErrorToleranceField))
             {
-                MaxSteps = maxSteps,
-                Inputs = TrainingInputs,
-                Outputs = Outputs,
-                ErrorTolerance = errorTolerance
-            };
+                if (!string.IsNullOrEmpty(MaxIterationsField.Text) &&
+                   !string.IsNullOrEmpty(TrainingRateField.Text) &&
+                   !string.IsNullOrEmpty(ErrorToleranceField.Text))
+                {
+                    if (TrainingInputs != null && TrainingInputs.Count > 0)
+                    {
+                        double errorTolerance = double.Parse(NeuronViewModel.ErrorTolerance);
+                        int maxSteps = int.Parse(NeuronViewModel.MaxSteps);
+                        NeuronTrainingInputModel neuronTraining = new()
+                        {
+                            MaxSteps = maxSteps,
+                            Inputs = TrainingInputs,
+                            Outputs = Outputs,
+                            ErrorTolerance = errorTolerance
+                        };
 
-            NeuronViewModel.StartTraining.Execute(neuronTraining);
+                        NeuronViewModel.StartTraining.Execute(neuronTraining);
 
-            SaveNeuron.IsEnabled = true;
-            StartSimulationButton.IsEnabled = true;
+                        SaveNeuron.IsEnabled = true;
+                        StartSimulationButton.IsEnabled = true;
+                    }
+                }
+            }
         }
 
         private void SaveNeuron_Click(object sender, RoutedEventArgs e)

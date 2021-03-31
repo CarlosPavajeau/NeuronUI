@@ -77,7 +77,7 @@ namespace NeuronUI
         private void LoadSimulationDataButton_Click(object sender, RoutedEventArgs e)
         {
             var data = LoadCsvDataFromFile();
-            if (data is null && data.Count == 0)
+            if (data is null || data.Count == 0)
             {
                 return;
             }
@@ -112,6 +112,8 @@ namespace NeuronUI
 
             NeuronViewModel.VersusSeries[0].Values.Clear();
             NeuronViewModel.VersusSeries[1].Values.Clear();
+            SimulationData.Clear();
+            DataTable.Items.Refresh();
         }
 
         private void StartSimulationButton_Click(object sender, RoutedEventArgs e)

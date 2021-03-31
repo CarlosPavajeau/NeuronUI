@@ -22,6 +22,14 @@ namespace NeuronUI.Models.ViewModels
 
         private string _errorTolerance = string.Empty;
 
+        private bool _isReadyForTraining;
+
+        public bool IsReadyForTraining
+        {
+            get => _isReadyForTraining;
+            set => OnPropertyChanged(ref _isReadyForTraining, value);
+        }
+
         public IList<string> TriggerFunctions { get; } = new List<string>
         {
             "Escalón",
@@ -129,6 +137,7 @@ namespace NeuronUI.Models.ViewModels
                 ErrorsSeries[0].Values.Add(new ObservableValue(1));
 
                 RefreshViewData();
+                Steps = 0;
             }
         }
 
@@ -154,6 +163,14 @@ namespace NeuronUI.Models.ViewModels
             }
 
             Weights = weightsStr;
+
+            TriggerFunction = _neuron.TriggerFunction switch
+            {
+                Models.TriggerFunction.Linear => "Lineal",
+                Models.TriggerFunction.Step => "Escalón",
+                Models.TriggerFunction.Sigmoidal => "Sigmoidal",
+                _ => ""
+            };
         }
 
         private bool CanSetUp()
@@ -190,6 +207,7 @@ namespace NeuronUI.Models.ViewModels
             while (!sw && (steps <= neuronTraining.MaxSteps))
             {
                 ++steps;
+                ++Steps;
 
                 List<double> patternErrors = new();
                 for (int i = 0; i < neuronTraining.Inputs.Count; i++)
