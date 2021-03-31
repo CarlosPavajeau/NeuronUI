@@ -1,24 +1,34 @@
-﻿using LiveCharts;
-using LiveCharts.Defaults;
-using LiveCharts.Wpf;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using LiveCharts;
+using LiveCharts.Defaults;
+using LiveCharts.Wpf;
 
 namespace NeuronUI.Models.ViewModels
 {
     public class NeuronViewModel : ObservableObject
     {
         private Neuron _neuron;
-        private string _sill = string.Empty;
-        private string _weights = string.Empty;
+        private string _sill = "No inicializados";
+        private string _weights = "No inicializados";
 
-        private string _maxSteps = string.Empty;
+        private string _maxSteps;
         private string _trainingRate = string.Empty;
+        private string _triggerFunction = string.Empty;
 
         private string _errorTolerance = string.Empty;
+
+        public IList<string> TriggerFunctions { get; } = new List<string>
+        {
+            "Escalón",
+            "Lineal",
+            "Sigmoidal"
+        };
+
+        private int _steps = 0;
 
         public NeuronViewModel()
         {
@@ -29,7 +39,7 @@ namespace NeuronUI.Models.ViewModels
             {
                 new LineSeries
                 {
-                    Title = "Error del patrón",
+                    Title = "Error de la iteración",
                     Values = new ChartValues<ObservableValue>
                     {
                         new ObservableValue(1)
@@ -64,10 +74,22 @@ namespace NeuronUI.Models.ViewModels
             set => OnPropertyChanged(ref _trainingRate, value);
         }
 
+        public string TriggerFunction
+        {
+            get => _triggerFunction;
+            set => OnPropertyChanged(ref _triggerFunction, value);
+        }
+
         public string ErrorTolerance
         {
             get => _errorTolerance;
             set => OnPropertyChanged(ref _errorTolerance, value);
+        }
+
+        public int Steps
+        {
+            get => _steps;
+            set => OnPropertyChanged(ref _steps, value);
         }
 
         public string MaxSteps
@@ -99,7 +121,7 @@ namespace NeuronUI.Models.ViewModels
 
         private void RefreshViewData()
         {
-            Sill = $"Umbral: {_neuron.Sill}";
+            Sill = _neuron.Sill.ToString();
 
             string weightsStr = string.Empty;
             for (int i = 0; i < _neuron.Weights.Count; i++)
@@ -111,7 +133,7 @@ namespace NeuronUI.Models.ViewModels
                 }
             }
 
-            Weights = $"Pesos: {weightsStr}";
+            Weights = weightsStr;
         }
 
         private bool CanSetUp()
@@ -153,9 +175,9 @@ namespace NeuronUI.Models.ViewModels
                     double patternError = Math.Abs(linealError);
                     patternErrors.Add(patternError);
 
-                    if (result == neuronTraining.Outputs[i]) 
+                    if (result == neuronTraining.Outputs[i])
                         continue;
-                    
+
                     _neuron.Learn(input, neuronTraining.Outputs[i]);
                     RefreshViewData();
                 }
