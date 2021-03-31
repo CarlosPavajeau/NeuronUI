@@ -44,6 +44,9 @@ namespace NeuronUI
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
             NeuronViewModel = DataContext as NeuronViewModel;
+
+            NeuronViewModel.VersusSeries[0].Values.Clear();
+            NeuronViewModel.VersusSeries[1].Values.Clear();
         }
 
         private static List<string[]> LoadCsvDataFromFile()
@@ -106,10 +109,16 @@ namespace NeuronUI
 
             PatternsCountChip.Content = $"Patrones: {Inputs.Count}";
             StartSimulationButton.IsEnabled = true;
+
+            NeuronViewModel.VersusSeries[0].Values.Clear();
+            NeuronViewModel.VersusSeries[1].Values.Clear();
         }
 
         private void StartSimulationButton_Click(object sender, RoutedEventArgs e)
         {
+            NeuronViewModel.VersusSeries[0].Values.Clear();
+            NeuronViewModel.VersusSeries[1].Values.Clear();
+
             for (int i = 0; i < Inputs.Count; i++)
             {
                 var inputs = Inputs[i];

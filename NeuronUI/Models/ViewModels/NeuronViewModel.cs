@@ -62,7 +62,8 @@ namespace NeuronUI.Models.ViewModels
                     Title = "Resultado obtenido",
                     Values = new ChartValues<ObservableValue>(),
                     PointGeometry = DefaultGeometries.Square,
-                    Foreground = Brushes.Red
+                    PointGeometrySize = 10,
+                    Stroke = Brushes.Gray
                 }
             };
         }
