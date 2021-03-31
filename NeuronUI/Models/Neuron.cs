@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,8 +14,14 @@ namespace NeuronUI.Models
             Init();
         }
 
-        public List<double> Weights { get; }
-        public double Sill { get; private set; }
+        public Neuron()
+        {
+            Weights = new List<double>();
+        }
+
+        public List<double> Weights { get; set; }
+        public double Sill { get; set; }
+
         private double TrainingRate { get; }
 
         private void Init()
