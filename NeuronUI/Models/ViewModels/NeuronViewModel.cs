@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Media;
 using LiveCharts;
 using LiveCharts.Defaults;
 using LiveCharts.Wpf;
@@ -45,6 +46,23 @@ namespace NeuronUI.Models.ViewModels
                         new ObservableValue(1)
                     },
                     PointGeometry = DefaultGeometries.Circle,
+                }
+            };
+
+            VersusSeries = new SeriesCollection
+            {
+                 new LineSeries
+                {
+                    Title = "Resultado esperado",
+                    Values = new ChartValues<ObservableValue>(),
+                    PointGeometry = DefaultGeometries.Circle,
+                },
+                  new LineSeries
+                {
+                    Title = "Resultado obtenido",
+                    Values = new ChartValues<ObservableValue>(),
+                    PointGeometry = DefaultGeometries.Square,
+                    Foreground = Brushes.Red
                 }
             };
         }
@@ -118,6 +136,7 @@ namespace NeuronUI.Models.ViewModels
         public ICommand StartTraining { get; }
 
         public SeriesCollection ErrorsSeries { get; set; }
+        public SeriesCollection VersusSeries { get; set; }
 
         private void RefreshViewData()
         {
@@ -145,7 +164,13 @@ namespace NeuronUI.Models.ViewModels
         {
             if (parameter is NeuronSetUpInputModel neuronInput)
             {
-                Neuron = new Neuron(neuronInput.InputsNumber, neuronInput.TrainingRate);
+                var triggerFunction = neuronInput.TriggerFunction switch
+                {
+                    "Escalón" => Models.TriggerFunction.Step,
+                    "Lienar" => Models.TriggerFunction.Linear,
+                    _ => Models.TriggerFunction.Sigmoidal,
+                };
+                Neuron = new Neuron(neuronInput.InputsNumber, neuronInput.TrainingRate, triggerFunction);
             }
 
             return Task.CompletedTask;
@@ -168,7 +193,7 @@ namespace NeuronUI.Models.ViewModels
                 List<double> patternErrors = new();
                 for (int i = 0; i < neuronTraining.Inputs.Count; i++)
                 {
-                    var input = neuronTraining.Inputs[i].ToArray();
+                    double[] input = neuronTraining.Inputs[i].ToArray();
                     double result = _neuron.Output(input);
 
                     double linealError = neuronTraining.Outputs[i] - result;
@@ -176,7 +201,9 @@ namespace NeuronUI.Models.ViewModels
                     patternErrors.Add(patternError);
 
                     if (result == neuronTraining.Outputs[i])
+                    {
                         continue;
+                    }
 
                     _neuron.Learn(input, neuronTraining.Outputs[i]);
                     RefreshViewData();
