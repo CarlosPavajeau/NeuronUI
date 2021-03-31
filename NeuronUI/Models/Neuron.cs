@@ -6,10 +6,11 @@ namespace NeuronUI.Models
 {
     public class Neuron
     {
-        public Neuron(int inputsNumber, double trainingRate)
+        public Neuron(int inputsNumber, double trainingRate, TriggerFunction triggerFunction)
         {
             Weights = new List<double>(inputsNumber);
             TrainingRate = trainingRate;
+            TriggerFunction = triggerFunction;
 
             Init();
         }
@@ -21,6 +22,7 @@ namespace NeuronUI.Models
 
         public List<double> Weights { get; set; }
         public double Sill { get; set; }
+        public TriggerFunction TriggerFunction { get; set; }
 
         private double TrainingRate { get; }
 
@@ -53,9 +55,15 @@ namespace NeuronUI.Models
             return Predict(NextInput(inputs));
         }
 
-        private static double Predict(double input)
+        private double Predict(double input)
         {
-            return input > 0 ? 1.0 : 0.0;
+            return TriggerFunction switch
+            {
+                TriggerFunction.Step => input > 0 ? 1.0 : 0.0,
+                TriggerFunction.Linear => input,
+                TriggerFunction.Sigmoidal => 1 / (1 + Math.Exp(-2 * input)),
+                _ => 0.0,
+            };
         }
 
         private double NextInput(double[] inputs)
