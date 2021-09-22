@@ -186,7 +186,7 @@ namespace NeuronUI.Models.ViewModels
                 var triggerFunction = neuronInput.TriggerFunction switch
                 {
                     "Escalón" => Models.TriggerFunction.Step,
-                    "Lienar" => Models.TriggerFunction.Linear,
+                    "Lineal" => Models.TriggerFunction.Linear,
                     _ => Models.TriggerFunction.Sigmoidal,
                 };
                 Neuron = new Neuron(neuronInput.InputsNumber, neuronInput.TrainingRate, triggerFunction);
